@@ -1,16 +1,23 @@
 <?php
 
-class elasticUser extends ElasticLight {
+require 'ElasticLight.php';
 
-    public $index = 'users';
+class ElasticUser extends ElasticLight {
+
+    public $index = 'users-light';
 
     public $type = 'user';
 
-    function setUpMapping() {
-        // TODO: Implement setUpMapping() method.
-    }
-
-    function search($query, $geo = null) {
-        // TODO: Implement search() method.
+    function setUp() {
+        return $this->create([
+            'mappings' => [
+                'user' => [
+                    'properties' => [
+                        'first_name' => ['type' => 'string', 'index' => 'not_analyzed'],
+                        'last_name' => ['type' => 'string', 'index' => 'not_analyzed']
+                    ]
+                ]
+            ]
+        ]);
     }
 }

@@ -4,39 +4,21 @@ abstract class ElasticLight {
 
     public $request;
 
-    public $url = 'http://localhost:9200';
+    public $url;
 
-    public $index = 'index';
+    public $index;
 
-    public $type = 'type';
+    public $type;
 
-    function __construct(API $request) {
+    function __construct(API $request, Config $config) {
         $this->request = $request;
+        $this->url = $config->url;
     }
 
-    abstract function setUpMapping();
-        /*$this->createMapping($this->index, [
-            'user' => [
-                'properties' => [
-                    'first_name' => ['type' => 'string', 'index' => 'not_analyzed'],
-                    'last_name' => ['type' => 'string', 'index' => 'not_analyzed']
-                ]
-            ],
-        ]);
-    }*/
+    abstract function setUp();
 
-    private function put($id, $params = []) {
-        return $this->request->put($this->urlTo($id, $this->type), $params);
-    }
-
-    function createMapping($index, $mappings) {
-        return $this->request->put($index, [
-            'mappings' => $mappings
-        ]);
-    }
-
-    function delete($id) {
-        return $this->request->delete($this->urlTo($id));
+    function create($params) {
+        return $this->request->put($this->url . '/' . $this->index, $params);
     }
 
     function get($id) {
@@ -44,16 +26,24 @@ abstract class ElasticLight {
     }
 
     function add($hash, $params) {
-        return $this->put($this->urlTo($hash, $this->type), $params);
+        return $this->request->put($this->urlTo($hash), $params);
     }
 
     function update($hash, $params) {
-        return $this->put($this->urlTo($hash, $this->type), $params);
+        return $this->add($hash, $params);
     }
 
-    protected function urlTo($id, $route = '') {
+    function delete($id) {
+        return $this->request->delete($this->urlTo($id));
+    }
+
+    function search($query) {
+        return $this->request->post($this->urlTo('_search'), $query);
+    }
+
+    protected function urlTo($id = '', $route = '') {
+        //FIXME $route
         return $this->url . '/' . $this->index . '/' . $this->type . '/' . $id . $route;
     }
 
-    abstract function search($query, $geo = null);
 }

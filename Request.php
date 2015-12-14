@@ -22,6 +22,10 @@ class Request implements API {
         curl_setopt($this->request, CURLOPT_HTTPHEADER, ['Content-type', 'application/json']);
     }
 
+    function __destruct() {
+        curl_close($this->request);
+    }
+
     function get($path, $params = []) {
         $this->init($path, $params);
 
@@ -55,9 +59,6 @@ class Request implements API {
     }
 
     private function execute() {
-        $output = json_decode(curl_exec($this->request));
-        curl_close($this->request);
-
-        return $output;
+        return json_decode(curl_exec($this->request));
     }
 }
